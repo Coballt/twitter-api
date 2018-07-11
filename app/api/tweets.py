@@ -66,4 +66,4 @@ def change_tweet(id):
     if tweet is not None:
         tweet.change_text(payload['text'])
         return '', 204
-    return jsonify({'error' : 'Product not found'}), 404
+    return jsonify({'error' : 'Tweet not found'}), 404
