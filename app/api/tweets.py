@@ -29,3 +29,10 @@ def post_tweet():
     tweet = Tweet(payload['text'])
     tweet_repository.add(tweet)
     return '', 204
+
+@api.route('/tweets/<int:id>', methods=['DELETE'])
+def delete_tweet(id):
+    res = tweet_repository.delete(id)
+    if res is False:
+        return jsonify({'error' : 'Tweet not found'}), 404
+    return '', 204
