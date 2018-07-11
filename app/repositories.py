@@ -14,6 +14,9 @@ class TweetRepository:
                 return tweet
         return None
 
+    def get_all(self):
+        return self.tweets
+
     def delete(self, id):
         for tweet in self.tweets:
             if tweet.id == id:

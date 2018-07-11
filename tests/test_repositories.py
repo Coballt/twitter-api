@@ -21,6 +21,12 @@ class TestRepository(TestCase):
         tweet = repo.get(1)
         self.assertEqual(tweet, self.tweet)
 
+    def test_get_all(self):
+        repo = TweetRepository()
+        repo.add(self.tweet)
+        list_tweet = repo.get_all()
+        self.assertEqual(len(list_tweet), 1)
+
     def test_get_tweet_not_found(self):
         repo = TweetRepository()
         tweet = repo.get(1)

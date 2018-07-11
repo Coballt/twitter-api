@@ -23,12 +23,22 @@ class TestTweetViews(TestCase):
         self.assertEqual(response_tweet["text"], "First tweet")
         self.assertIsNotNone(response_tweet["created_at"])
 
+    def test_tweet_get_all(self):
+        first_tweet = Tweet("First tweet")
+        tweet_repository.add(first_tweet)
+        second_tweet = Tweet("Second tweet")
+        tweet_repository.add(second_tweet)
+        response = self.client.get("/api/v1/tweets")
+        response_tweet = response.json
+        self.assertIsInstance(response_tweet, list)
+        self.assertEqual(len(response_tweet), 2)
+
     def test_post_tweet_works(self):
         payload = {'text' : "Another awesome tweet"}
         response = self.client.post("/api/v1/tweets", data=json.dumps(payload))
         response_tweet = response.json
-        self.assertEqual(response.status_code, 204)
-        self.assertEqual(response_tweet, None)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response_tweet['text'], "Another awesome tweet")
         self.assertEqual(tweet_repository.max_id, 2)
         self.assertEqual(len(tweet_repository.tweets), 1)
 
@@ -56,3 +66,13 @@ class TestTweetViews(TestCase):
         response_tweet = response.json
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response_tweet['error'], 'Tweet not found')
+
+    def test_update_tweet_works(self):
+        first_tweet = Tweet("First tweet")
+        tweet_repository.add(first_tweet)
+        payload = {'text' : "Another modified tweet"}
+        response = self.client.patch("/api/v1/tweets/1", data=json.dumps(payload))
+        response_tweet = response.json
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response_tweet, None)
+        self.assertEqual(tweet_repository.tweets[0].text, "Another modified tweet")
