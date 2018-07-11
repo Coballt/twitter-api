@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring
+# pylint: disable=too-few-public-methods
 from datetime import datetime
 
 class Tweet:
