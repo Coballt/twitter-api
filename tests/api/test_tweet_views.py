@@ -76,3 +76,10 @@ class TestTweetViews(TestCase):
         self.assertEqual(response.status_code, 204)
         self.assertEqual(response_tweet, None)
         self.assertEqual(tweet_repository.tweets[0].text, "Another modified tweet")
+
+    def test_update_tweet_works(self):
+        payload = {'text' : "Another modified tweet"}
+        response = self.client.patch("/api/v1/tweets/1", data=json.dumps(payload))
+        response_tweet = response.json
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response_tweet['error'], 'Tweet not found')
