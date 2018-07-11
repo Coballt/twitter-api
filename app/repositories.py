@@ -13,3 +13,10 @@ class TweetRepository:
             if tweet.id == id:
                 return tweet
         return None
+
+    def delete(self, id):
+        for tweet in self.tweets:
+            if tweet.id == id:
+                del self.tweets[self.tweets.index(tweet)]
+                return True
+        return False

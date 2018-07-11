@@ -41,3 +41,18 @@ class TestTweetViews(TestCase):
         self.assertEqual(tweet_repository.max_id, 1)
         self.assertEqual(len(tweet_repository.tweets), 0)
 
+    def test_delete_tweet_works(self):
+        first_tweet = Tweet("First tweet")
+        tweet_repository.add(first_tweet)
+        response = self.client.delete("/api/v1/tweets/1")
+        response_tweet = response.json
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response_tweet, None)
+        self.assertEqual(tweet_repository.max_id, 2)
+        self.assertEqual(len(tweet_repository.tweets), 0)
+
+    def test_delete_tweet_not_found(self):
+        response = self.client.delete("/api/v1/tweets/1")
+        response_tweet = response.json
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response_tweet['error'], 'Tweet not found')
