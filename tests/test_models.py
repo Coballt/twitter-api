@@ -12,3 +12,8 @@ class TestTweet(TestCase):
         self.assertIsNotNone(tweet.created_at)
         # Check that the tweet's id is not yet assigned when creating a Tweet in memory
         self.assertIsNone(tweet.id)
+
+    def test_patch_tweet(self):
+        tweet = Tweet("my first tweet")
+        tweet.change_text("Oops bad tweet")
+        self.assertEqual(tweet.text, "Oops bad tweet")
