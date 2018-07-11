@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring
+# pylint: disable=too-few-public-methods
 class TweetRepository:
     def __init__(self):
         self.tweets = []

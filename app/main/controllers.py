@@ -1,4 +1,5 @@
-# app/main/controllers.py
+# pylint: disable=missing-docstring
+# pylint: disable=too-few-public-methods
 from flask import Blueprint
 
 main = Blueprint('main', __name__)

@@ -10,6 +10,11 @@ gunicorn = "*"
 [dev-packages]
 flask-testing = "*"
 nose = "*"
+pylint = "*"
+astroid = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true

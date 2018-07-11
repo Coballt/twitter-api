@@ -1,4 +1,4 @@
-# app/__init.py__
+# pylint: disable=missing-docstring
 from flask import Flask # This line already exists
 
 from .db import tweet_repository
@@ -12,6 +12,6 @@ def create_app():
     from .main.controllers import main
     app.register_blueprint(main)
     from .api.tweets import api as tweet_api
-    app.register_blueprint(tweet_api, url_prefix = "/api/v1")
+    app.register_blueprint(tweet_api, url_prefix="/api/v1")
 
     return app

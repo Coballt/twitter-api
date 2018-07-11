@@ -1,8 +1,9 @@
-# app/api/tweets.py
+# pylint: disable=missing-docstring
+# pylint: disable=too-few-public-methods
+import json
 from flask import Blueprint, jsonify, request
 from app.db import tweet_repository
 from app.models import Tweet
-import json
 
 api = Blueprint('tweets', __name__)
 
@@ -34,7 +35,7 @@ def get_tweet(id):
 def post_tweet():
     try:
         payload = json.loads(request.data)
-    except ValueError :
+    except ValueError:
         return jsonify({"error" : "Bad payload received"}), 422
     if 'text' not in payload:
         return jsonify({"error" : "Bad payload received"}), 422
@@ -58,7 +59,7 @@ def delete_tweet(id):
 def change_tweet(id):
     try:
         payload = json.loads(request.data)
-    except ValueError :
+    except ValueError:
         return jsonify({"error" : "Bad payload received"}), 422
     if 'text' not in payload:
         return jsonify({"error" : "Bad payload received"}), 422
