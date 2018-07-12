@@ -6,6 +6,7 @@ from app import db
 from app.models import User
 from app.schemas import user_schema, users_schema
 from datetime import datetime
+import secrets
 
 api = Blueprint('user', __name__)
 
@@ -14,48 +15,48 @@ def get_all_users():
     list_users = db.session.query(User).all()
     return users_schema.jsonify(list_users), 200
 
-@api.route('/tweets/<int:id>', methods=['GET'])
-def get_tweet(id):
-    tweet = db.session.query(Tweet).get(id)
-    if tweet is not None :
-        return tweet_schema.jsonify(tweet)
-    return jsonify({"error": "Tweet not found"}), 404
+@api.route('/users/<int:id>', methods=['GET'])
+def get_user(id):
+    user = db.session.query(User).get(id)
+    if user is not None :
+        return user_schema.jsonify(user)
+    return jsonify({"error": "User not found"}), 404
 
-@api.route('/tweets', methods=['POST'])
-def post_tweet():
+@api.route('/users', methods=['POST'])
+def post_user():
     try:
         payload = json.loads(request.data)
     except ValueError :
         return jsonify({"error" : "Bad payload received"}), 422
-    if 'text' not in payload:
+    if 'username' not in payload:
         return jsonify({"error" : "Bad payload received"}), 422
-    tweet = Tweet(text=payload['text'], created_at=datetime.now())
-    db.session.add(tweet)
+    user = User(username=payload['username'], token=secrets.token_hex(16))
+    db.session.add(user)
     db.session.flush()
     db.session.commit()
-    return tweet_schema.jsonify(tweet), 201
+    return user_schema.jsonify(user), 201
 
-@api.route('/tweets/<int:id>', methods=['DELETE'])
-def delete_tweet(id):
-    tweet = db.session.query(Tweet).get(id)
-    if tweet is not None :
-        db.session.delete(tweet)
+@api.route('/users/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    user = db.session.query(User).get(id)
+    if user is not None :
+        db.session.delete(user)
         db.session.flush()
         db.session.commit()
         return '', 204
-    return jsonify({"error": "Tweet not found"}), 404
+    return jsonify({"error": "User not found"}), 404
 
-@api.route('/tweets/<int:id>', methods=['PATCH'])
-def change_tweet(id):
+@api.route('/users/<int:id>', methods=['PATCH'])
+def change_user(id):
     try:
         payload = json.loads(request.data)
     except ValueError :
         return jsonify({"error" : "Bad payload received"}), 422
-    if 'text' not in payload:
+    if 'username' not in payload:
         return jsonify({"error" : "Bad payload received"}), 422
-    tweet = db.session.query(Tweet).get(id)
-    if tweet is not None :
-        tweet.text = payload['text']
+    user = db.session.query(User).get(id)
+    if user is not None :
+        user.username = payload['username']
         db.session.commit()
         return '', 204
-    return jsonify({"error": "Tweet not found"}), 404
+    return jsonify({"error": "User not found"}), 404
