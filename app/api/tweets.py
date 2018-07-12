@@ -2,69 +2,60 @@
 # pylint: disable=too-few-public-methods
 import json
 from flask import Blueprint, jsonify, request
-from app.db import tweet_repository
+from app import db
 from app.models import Tweet
+from app.schemas import tweets_schema, tweet_schema
+from datetime import datetime
 
 api = Blueprint('tweets', __name__)
 
 @api.route('/tweets', methods=['GET'])
 def get_all_tweet():
-    list_twt = []
-    for tweet in tweet_repository.get_all():
-        response = {
-            'id': tweet.id,
-            'text': tweet.text,
-            'created_at': tweet.created_at
-        }
-        list_twt.append(response)
-    return jsonify(list_twt), 200
+    list_twt = db.session.query(Tweet).all()
+    return tweets_schema.jsonify(list_twt), 200
 
 @api.route('/tweets/<int:id>', methods=['GET'])
 def get_tweet(id):
-    tweet = tweet_repository.get(id)
-    if tweet is not None:
-        response = {
-            'id': tweet.id,
-            'text': tweet.text,
-            'created_at': tweet.created_at
-        }
-        return jsonify(response), 200
+    tweet = db.session.query(Tweet).get(id)
+    if tweet is not None :
+        return tweet_schema.jsonify(tweet)
     return jsonify({"error": "Tweet not found"}), 404
 
 @api.route('/tweets', methods=['POST'])
 def post_tweet():
     try:
         payload = json.loads(request.data)
-    except ValueError:
+    except ValueError :
         return jsonify({"error" : "Bad payload received"}), 422
     if 'text' not in payload:
         return jsonify({"error" : "Bad payload received"}), 422
-    tweet = Tweet(payload['text'])
-    tweet_repository.add(tweet)
-    response = {
-            'id': tweet.id,
-            'text': tweet.text,
-            'created_at': tweet.created_at
-        }
-    return jsonify(response), 201
+    tweet = Tweet(text=payload['text'], created_at=datetime.now())
+    db.session.add(tweet)
+    db.session.flush()
+    db.session.commit()
+    return tweet_schema.jsonify(tweet), 201
 
 @api.route('/tweets/<int:id>', methods=['DELETE'])
 def delete_tweet(id):
-    res = tweet_repository.delete(id)
-    if res is False:
-        return jsonify({'error' : 'Tweet not found'}), 404
-    return '', 204
+    tweet = db.session.query(Tweet).get(id)
+    if tweet is not None :
+        db.session.delete(tweet)
+        db.session.flush()
+        db.session.commit()
+        return '', 204
+    return jsonify({"error": "Tweet not found"}), 404
 
 @api.route('/tweets/<int:id>', methods=['PATCH'])
 def change_tweet(id):
     try:
         payload = json.loads(request.data)
-    except ValueError:
+    except ValueError :
         return jsonify({"error" : "Bad payload received"}), 422
     if 'text' not in payload:
         return jsonify({"error" : "Bad payload received"}), 422
-    tweet = tweet_repository.get(id)
-    if tweet is not None:
-        tweet.change_text(payload['text'])
+    tweet = db.session.query(Tweet).get(id)
+    if tweet is not None :
+        tweet.text = payload['text']
+        db.session.commit()
         return '', 204
-    return jsonify({'error' : 'Tweet not found'}), 404
+    return jsonify({"error": "Tweet not found"}), 404
