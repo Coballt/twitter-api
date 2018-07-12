@@ -24,9 +24,7 @@ def get_tweet(id):
 
 @api.route('/tweets', methods=['POST'])
 def post_tweet():
-    if 'Authorization' not in request.headers:
-        return jsonify({"error" : "Not authorized"}), 403
-    user = validate_token(request.headers['Authorization'])
+    user = validate_auth(request.headers)
     if user is None:
         return jsonify({"error" : "Not authorized"}), 403
     try:
@@ -43,15 +41,13 @@ def post_tweet():
 
 @api.route('/tweets/<int:id>', methods=['DELETE'])
 def delete_tweet(id):
-    if 'Authorization' not in request.headers:
-        return jsonify({"error" : "Not authorized"}), 403
-    user = validate_token(request.headers['Authorization'])
+    user = validate_auth(request.headers)
     if user is None:
         return jsonify({"error" : "Not authorized"}), 403
     tweet = db.session.query(Tweet).get(id)
-    if user.id != tweet.user_id:
-        return jsonify({"error" : "Not authorized (not your tweet)"}), 403
     if tweet is not None :
+        if user.id != tweet.user_id:
+            return jsonify({"error" : "Not authorized (not your tweet)"}), 403
         db.session.delete(tweet)
         db.session.flush()
         db.session.commit()
@@ -60,9 +56,7 @@ def delete_tweet(id):
 
 @api.route('/tweets/<int:id>', methods=['PATCH'])
 def change_tweet(id):
-    if 'Authorization' not in request.headers:
-        return jsonify({"error" : "Not authorized"}), 403
-    user = validate_token(request.headers['Authorization'])
+    user = validate_auth(request.headers)
     if user is None:
         return jsonify({"error" : "Not authorized"}), 403
     try:
@@ -72,10 +66,16 @@ def change_tweet(id):
     if 'text' not in payload:
         return jsonify({"error" : "Bad payload received"}), 422
     tweet = db.session.query(Tweet).get(id)
-    if user.id != tweet.user_id:
-        return jsonify({"error" : "Not authorized (not your tweet)"}), 403
     if tweet is not None :
+        if user.id != tweet.user_id:
+            return jsonify({"error" : "Not authorized (not your tweet)"}), 403
         tweet.text = payload['text']
         db.session.commit()
         return '', 204
     return jsonify({"error": "Tweet not found"}), 404
+
+def validate_auth(header):
+    if 'Authorization' not in header:
+        return None
+    user = validate_token(header['Authorization'])
+    return user
