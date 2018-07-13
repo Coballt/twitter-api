@@ -8,7 +8,7 @@ from app.schemas import user_schema, users_schema
 from datetime import datetime
 import secrets
 
-api = Blueprint('user', __name__)
+api = Blueprint('users', __name__)
 
 @api.route('/users', methods=['GET'])
 def get_all_users():

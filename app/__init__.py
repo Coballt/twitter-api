@@ -7,7 +7,8 @@ except:
 
 from flask import Flask # This line already exists
 from .config import Config
-
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 db = SQLAlchemy()
@@ -26,5 +27,8 @@ def create_app():
     app.register_blueprint(tweet_api, url_prefix="/api/v1")
     from .api.users import api as user_api
     app.register_blueprint(user_api, url_prefix="/api/v1")
-
+    admin = Admin(app, name='Back-office', template_mode='bootstrap3')
+    from .models import Tweet, User
+    admin.add_view(ModelView(Tweet, db.session))
+    admin.add_view(ModelView(User, db.session))
     return app

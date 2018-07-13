@@ -13,6 +13,7 @@ flask-script = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 python-dotenv = "*"
+flask-admin = "*"
 
 [dev-packages]
 flask-testing = "*"
